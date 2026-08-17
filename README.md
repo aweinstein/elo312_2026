@@ -2,7 +2,7 @@
 
 Este repositorio contiene programas utilizados en el segundo semestre de 2026 de la asignatura "Laboratorio de Estructura de Computadores" (ELO312), dictada por el Departamento de Electrónica de la Universidad Técnica Federico Santa María.
 
-Todos los proyectos están basados en el [STM32CubeIDE 2.2.0](https://www.st.com/en/development-tools/stm32cubeide.ht) y [STM32CubeMX 6.18.1](https://www.st.com/en/development-tools/stm32cubemx.html). El hardware asociado es la tarjeta Nucleo-L476RG.
+Todos los proyectos están basados en el [STM32CubeIDE 2.2.0](https://www.st.com/en/development-tools/stm32cubeide.html) y [STM32CubeMX 6.18.1](https://www.st.com/en/development-tools/stm32cubemx.html). El hardware asociado es la tarjeta Nucleo-L476RG.
 
 Detalle del contenido del repositorio
 =====================================
