@@ -106,7 +106,9 @@ int main(void)
   printf("ELO312 Sesion Guiada 1\n");
   while (1)
   {
-
+    HAL_GPIO_TogglePin(LED2_GPIO_PORT, LED2_PIN);
+    HAL_Delay
+	(250);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
