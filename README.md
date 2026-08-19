@@ -4,9 +4,13 @@ Este repositorio contiene programas utilizados en el segundo semestre de 2026 de
 
 Todos los proyectos están basados en el [STM32CubeIDE 2.2.0](https://www.st.com/en/development-tools/stm32cubeide.html) y [STM32CubeMX 6.18.1](https://www.st.com/en/development-tools/stm32cubemx.html). El hardware asociado es la tarjeta Nucleo-L476RG.
 
-Detalle del contenido del repositorio
-=====================================
+## Detalle del contenido del repositorio
 
+### Sesión guiada 1
 * [sg1](https://github.com/aweinstein/elo312_2026/tree/main/sg1): Proyecto STM32CubeIde para ser usado como plantilla en la Sesión Guiada 1.
 
 Este programa vincula la UART2 con printf. Además, deja parpadeando el LED LD2 de la tarjeta Nucleo para verificar que el programa se está ejecutando correctamente.
+
+### Sesión guiada 2
+
+* [sg2](https://github.com/aweinstein/elo312_2026/tree/main/sg2): Archivos de referencia para manejo "bare metal" de los regiostros GPIO.
