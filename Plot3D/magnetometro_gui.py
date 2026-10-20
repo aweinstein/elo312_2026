@@ -1,3 +1,5 @@
+import math
+import random
 import sys
 import os
 import csv
@@ -13,6 +15,8 @@ from PyQt5.QtCore import pyqtSignal, QObject
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+
+DEBUG = "--debug" in sys.argv
 
 # --- Hilo de comunicación serial ---
 class SerialThread(QObject):
@@ -71,19 +75,50 @@ class PlotWindow(QWidget):
         self.setLayout(layout)
         self.plot_data()
 
+
+    
     def plot_data(self):
         self.figure.clear()
         ax = self.figure.add_subplot(111, projection="3d")
+
         if self.data:
             xs, ys, zs = zip(*self.data)
-            ax.scatter(xs, ys, zs, c='r', marker='o')
-            ax.set_title(f"{len(self.data)} mediciones del campo magnético")
+
+            ax.scatter(xs, ys, zs, c="red", marker="o", s=12)
+
+            # Máxima magnitud absoluta de todos los ejes
+            max_range = max(
+                max(abs(v) for v in xs),
+                max(abs(v) for v in ys),
+                max(abs(v) for v in zs)
+            )
+
+            if max_range == 0:
+                max_range = 1.0
+
+            # Margen del 10 %
+            limit = max_range * 1.10
+
+            ax.set_xlim(-limit, limit)
+            ax.set_ylim(-limit, limit)
+            ax.set_zlim(-limit, limit)
+
+            ax.set_title(
+                f"{len(self.data)} mediciones del campo magnético"
+            )
         else:
             ax.set_title("No hay datos para mostrar")
+
         ax.set_xlabel("Eje X")
         ax.set_ylabel("Eje Y")
         ax.set_zlabel("Eje Z")
+
+        # Evita deformaciones por proporciones diferentes
+        ax.set_box_aspect((1, 1, 1))
+
         self.canvas.draw()
+
+
 
 # --- Ventana principal ---
 class MagnetometroGUI(QWidget):
@@ -170,6 +205,20 @@ class MagnetometroGUI(QWidget):
         data_layout.addWidget(self.btn_clear)
         left_layout.addLayout(data_layout)
 
+        if DEBUG:
+            #simulacion
+            self.btn_sim_sphere = QPushButton("Simular esfera")
+            self.btn_sim_sphere.clicked.connect(
+                lambda: self.simulate_data(offset=(0, 0, 0))
+            )
+            data_layout.addWidget(self.btn_sim_sphere)
+
+            self.btn_sim_offset = QPushButton("Simular con offset")
+            self.btn_sim_offset.clicked.connect(
+                lambda: self.simulate_data(offset=(120, -80, 60))
+            )
+            data_layout.addWidget(self.btn_sim_offset)
+
         main_layout.addLayout(left_layout)
 
         # --- Panel derecho: info de datos ---
@@ -228,7 +277,7 @@ class MagnetometroGUI(QWidget):
             self,
             "Acerca de",
             "Software Magnetómetro LSM303AGR\n"
-            "Versión 1.0\n"
+            "Versión 1.1\n"
             "Desarrollado por Rodrigo Jimenez para la asignatura ELO312 - UTFSM\n\n"
             "Uso educativo únicamente.\n\n"
             "Icono: 'Magnetómetro' de Flaticon (Freepik Company) - https://www.flaticon.es/icono-gratis/magnetometro_10614176\n\n"
@@ -353,6 +402,58 @@ class MagnetometroGUI(QWidget):
         self.data_table.setRowCount(0)
         
         QMessageBox.information(self, "Datos", "Datos almacenados borrados.")
+
+    if DEBUG:
+        def simulate_data(self, count=500, radius=500, offset=(0, 0, 0)):
+            """
+            Genera mediciones sintéticas sobre una esfera 3D.
+
+            count: cantidad de puntos
+            radius: magnitud del campo magnético simulado
+            offset: desplazamiento artificial en X, Y, Z
+            """
+            ox, oy, oz = offset
+            noise_sigma = radius * 0.005  # Ruido del 0.5 %
+
+            self.mediciones.clear()
+            self.data_table.setRowCount(0)
+
+            for _ in range(count):
+                # Distribución uniforme de direcciones sobre una esfera
+                z = random.uniform(-1.0, 1.0)
+                theta = random.uniform(0.0, 2.0 * math.pi)
+                r_xy = math.sqrt(1.0 - z * z)
+
+                x = radius * r_xy * math.cos(theta)
+                y = radius * r_xy * math.sin(theta)
+                z = radius * z
+
+                # Añadir ruido y offset
+                x += ox + random.gauss(0, noise_sigma)
+                y += oy + random.gauss(0, noise_sigma)
+                z += oz + random.gauss(0, noise_sigma)
+
+                entry = (x, y, z)
+                self.mediciones.append(entry)
+
+                row_idx = self.data_table.rowCount()
+                self.data_table.insertRow(row_idx)
+
+                for col, val in enumerate(entry):
+                    self.data_table.setItem(
+                        row_idx, col, QTableWidgetItem(f"{val:.3f}")
+                    )
+
+            self.label_count.setText(str(len(self.mediciones)))
+            self.spin_index.setMaximum(len(self.mediciones) - 1)
+            self.spin_index.setValue(0)
+            self.update_selected_data()
+
+            self.console.append(
+                f"Simulación: {count} puntos, radio={radius}, "
+                f"offset=({ox}, {oy}, {oz})"
+            )
+
 
 # --- Main ---
 if __name__ == "__main__":
