@@ -58,3 +58,11 @@ dkms.conf
 .settings/
 Debug/
 .metadata/
+
+# Python
+*.venv/
+*/build/
+*/dist/
+
+# Notepad++
+*.bak
