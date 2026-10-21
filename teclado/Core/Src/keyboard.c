@@ -255,7 +255,7 @@ void _set_output_port(uint8_t iteration)
 
 
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
 
   GPIO_InitStruct.Pin = kb_in[0]->gpio_pin;
   HAL_GPIO_Init(kb_in[0]->gpio_port, &GPIO_InitStruct);
